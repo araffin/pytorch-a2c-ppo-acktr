@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import torch
 from torch.utils.data.sampler import BatchSampler, SubsetRandomSampler
 

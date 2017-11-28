@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 # Copied from https://github.com/emansim/baselines-mansimov/blob/master/baselines/a2c/visualize_atari.py
 # and https://github.com/emansim/baselines-mansimov/blob/master/baselines/a2c/load.py
 # Thanks to the author and OpenAI team!

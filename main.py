@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import copy
 import glob
 import os
@@ -66,7 +68,7 @@ def main():
         envs = VecNormalize(envs)
 
     obs_shape = envs.observation_space.shape
-    obs_shape = (obs_shape[0] * args.num_stack, *obs_shape[1:])
+    obs_shape = tuple([obs_shape[0] * args.num_stack]  + list(obs_shape[1:]))
 
     if len(envs.observation_space.shape) == 3:
         actor_critic = CNNPolicy(obs_shape[0], envs.action_space, args.recurrent_policy)

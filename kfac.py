@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import math
 
 import torch
@@ -40,8 +42,7 @@ def compute_cov_a(a, classname, layer_info, fast_cnn):
         a = torch.ones(a.size(0), 1)
         if is_cuda:
             a = a.cuda()
-
-    return a.t() @ (a / batch_size)
+    return torch.mm(a.t(), (a / batch_size))
 
 
 def compute_cov_g(g, classname, layer_info, fast_cnn):
@@ -59,7 +60,7 @@ def compute_cov_g(g, classname, layer_info, fast_cnn):
         g = g.sum(-1)
 
     g_ = g * batch_size
-    return g_.t() @ (g_ / g.size(0))
+    return torch.mm(g_.t(), (g_ / g.size(0)))
 
 
 def update_running_stat(aa, m_aa, momentum):
@@ -104,7 +105,7 @@ class KFACOptimizer(optim.Optimizer):
                     split_bias(child)
 
         split_bias(model)
-            
+
         super(KFACOptimizer, self).__init__(model.parameters(), defaults)
 
         self.known_modules = {'Linear', 'Conv2d', 'AddBias'}
@@ -220,10 +221,10 @@ class KFACOptimizer(optim.Optimizer):
             else:
                 p_grad_mat = p.grad.data
 
-            v1 = self.Q_g[m].t() @ p_grad_mat @ self.Q_a[m]
+            v1 = torch.mm(self.Q_g[m].t(), torch.mm(p_grad_mat, self.Q_a[m]))
             v2 = v1 / (
                 self.d_g[m].unsqueeze(1) * self.d_a[m].unsqueeze(0) + la)
-            v = self.Q_g[m] @ v2 @ self.Q_a[m].t()
+            v = torch.mm(self.Q_g[m], torch.mm(v2, self.Q_a[m].t()))
 
             v = v.view(p.grad.data.size())
             updates[p] = v
