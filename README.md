@@ -23,7 +23,7 @@ All environments are operated using exactly the same Gym interface. See their do
 
 ## Requirements
 
-* Python 3 (cf python 2 instructions for )
+* Python 3 (it might work with Python 2, but I didn't test it)
 * [PyTorch](http://pytorch.org/)
 * [Visdom](https://github.com/facebookresearch/visdom)
 * [OpenAI baselines](https://github.com/openai/baselines)
@@ -42,20 +42,6 @@ pip install -e .
 # Other requirements
 pip install -r requirements.txt
 ```
-
-### Python 2 Instructions
-
-There is an additional change required in OpenAI Baselines (https://github.com/openai/baselines/blob/master/baselines/common/dataset.py#L50):
-The definition (line 50):
-```python
-def iterbatches(arrays, *, num_batches=None, batch_size=None, shuffle=True, include_final_partial_batch=True):
-```
-need to be replaced by:
-```python
-def iterbatches(arrays, num_batches=None, batch_size=None, shuffle=True, include_final_partial_batch=True):
-```
-
-
 
 ## Contributions
 

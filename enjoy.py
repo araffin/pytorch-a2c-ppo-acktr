@@ -1,5 +1,3 @@
-from __future__ import print_function, division
-
 import argparse
 import os
 import types
@@ -51,7 +49,7 @@ else:
     render_func = env.envs[0].render
 
 obs_shape = env.observation_space.shape
-obs_shape = tuple([obs_shape[0] * args.num_stack]  + list(obs_shape[1:]))
+obs_shape = (obs_shape[0] * args.num_stack, *obs_shape[1:])
 current_obs = torch.zeros(1, *obs_shape)
 states = torch.zeros(1, actor_critic.state_size)
 masks = torch.zeros(1, 1)
