@@ -100,40 +100,34 @@ color_defaults = [
 ]
 
 
-def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1):
+def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1, title=""):
+    """
+    Create/Update a vizdom plot
+    :param viz: (visdom object)
+    :param win: (str) Window name, it is the unique id of each plot
+    :param folder: (str) Log folder, where the monitor.csv is stored
+    :param game: (str) Name of the environment
+    :param name: (str) Algo name
+    :param bin_size: (int)
+    :param smooth: (int) Smoothing method (0 for no smoothing)
+    :param title: (str) additional info to display in the plot title
+    """
     tx, ty = load_data(folder, smooth, bin_size)
     if tx is None or ty is None:
         return win
 
-    fig = plt.figure()
-    plt.plot(tx, ty, label="{}".format(name))
+    if len(tx) * len(ty) == 0:
+        return win
 
-    # Ugly hack to detect atari
-    if game.find('NoFrameskip') > -1:
-        plt.xticks([1e6, 2e6, 4e6, 6e6, 8e6, 10e6],
-                   ["1M", "2M", "4M", "6M", "8M", "10M"])
-        plt.xlim(0, 10e6)
-    else:
-        plt.xticks([1e5, 2e5, 4e5, 6e5, 8e5, 1e5],
-                   ["0.1M", "0.2M", "0.4M", "0.6M", "0.8M", "1M"])
-        plt.xlim(0, 1e6)
+    tx, ty = np.array(tx), np.array(ty)
 
-    plt.xlabel('Number of Timesteps')
-    plt.ylabel('Rewards')
-
-
-    plt.title(game)
-    plt.legend(loc=4)
-    plt.show()
-    plt.draw()
-
-    image = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-    image = image.reshape(fig.canvas.get_width_height()[::-1] + (3, ))
-    plt.close(fig)
-
-    # Show it in visdom
-    image = np.transpose(image, (2, 0, 1))
-    return viz.image(image, win=win)
+    opts = {
+        "title": "{}\n{}".format(game, title),
+        "xlabel": "Number of Timesteps",
+        "ylabel": "Rewards",
+        "legend": [name]
+    }
+    return viz.line(ty, tx, win=win, opts=opts)
 
 
 if __name__ == "__main__":
