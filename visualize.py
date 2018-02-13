@@ -6,12 +6,8 @@ import glob
 import json
 import os
 
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import medfilt
-matplotlib.rcParams.update({'font.size': 8})
 
 
 def smooth_reward_curve(x, y):

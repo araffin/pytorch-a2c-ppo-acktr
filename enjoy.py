@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common.vec_env.vec_normalize import VecNormalize
 
-from envs import make_env
+from .envs import make_env
 
 
 parser = argparse.ArgumentParser(description='RL')
