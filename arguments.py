@@ -8,7 +8,7 @@ def get_args():
     parser.add_argument('--algo', default='a2c',
                         help='algorithm to use: a2c | ppo | acktr')
     parser.add_argument('--srl-model', type=str, default='', choices=["autoencoder", "ground_truth", "srl_priors", "supervised"],
-                    help='SRL model to use')
+                        help='SRL model to use')
     parser.add_argument('--lr', type=float, default=7e-4,
                         help='learning rate (default: 7e-4)')
     parser.add_argument('--eps', type=float, default=1e-5,
@@ -52,9 +52,7 @@ def get_args():
     parser.add_argument('--env-name', default='PongNoFrameskip-v4',
                         help='environment to train on (default: PongNoFrameskip-v4)')
     parser.add_argument('--log-dir', default='/tmp/gym/',
-                        help='directory to save agent logs (default: /tmp/gym)')
-    parser.add_argument('--save-dir', default='./trained_models/',
-                        help='directory to save agent logs (default: ./trained_models/)')
+                        help='directory to save agent logs and model (default: /tmp/gym)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
     parser.add_argument('--recurrent-policy', action='store_true', default=False,

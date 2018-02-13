@@ -31,15 +31,39 @@ class FFPolicy(nn.Module):
         action_log_probs, dist_entropy = self.dist.logprobs_and_entropy(x, actions)
         return value, action_log_probs, dist_entropy, states
 
+def get_output_size(in_size, kernel_size, stride=1, padding=0):
+    """
+    Get the output size given all the parameters of the convolution
+    :param in_size: (int) input size
+    :param kernel_size: (int)
+    :param stride: (int)
+    :param paddind: (int)
+    :return: (int)
+    """
+    return int((in_size - kernel_size + 2 * padding) / stride) + 1
+
+
+def compute_dim(input_dim):
+    """
+    :param input_dim: (int)
+    :return: (int)
+    """
+    conv1 = get_output_size(in_size=input_dim, kernel_size=8, stride=4, padding=0)
+    conv2 = get_output_size(in_size=conv1, kernel_size=4, stride=2, padding=0)
+    conv3 = get_output_size(in_size=conv2, kernel_size=3, stride=1, padding=0)
+    return conv3
+
 
 class CNNPolicy(FFPolicy):
-    def __init__(self, num_inputs, action_space, use_gru):
+    def __init__(self, num_inputs, action_space, use_gru, input_dim=84):
         super(CNNPolicy, self).__init__()
         self.conv1 = nn.Conv2d(num_inputs, 32, 8, stride=4)
         self.conv2 = nn.Conv2d(32, 64, 4, stride=2)
         self.conv3 = nn.Conv2d(64, 32, 3, stride=1)
 
-        self.linear1 = nn.Linear(32 * 7 * 7, 512)
+        self.out_dim = compute_dim(input_dim)
+
+        self.linear1 = nn.Linear(32 * self.out_dim * self.out_dim, 512)
 
         if use_gru:
             self.gru = nn.GRUCell(512, 512)
@@ -93,7 +117,7 @@ class CNNPolicy(FFPolicy):
         x = self.conv3(x)
         x = F.relu(x)
 
-        x = x.view(-1, 32 * 7 * 7)
+        x = x.view(-1, 32 * self.out_dim * self.out_dim)
         x = self.linear1(x)
         x = F.relu(x)
 
