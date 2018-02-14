@@ -13,7 +13,15 @@ except ImportError:
     pass
 
 
-def make_env(env_id, seed, rank, log_dir):
+def make_env(env_id, seed, rank, log_dir, pytorch=True):
+    """
+    Instantiate gym env
+    :param env_id: (str)
+    :param seed: (int)
+    :param rank: (int)
+    :param log_dir: (str)
+    :param pytorch: (bool)
+    """
     def _thunk():
         env = gym.make(env_id)
         is_atari = hasattr(gym.envs, 'atari') and isinstance(env.unwrapped, gym.envs.atari.atari_env.AtariEnv)
@@ -26,7 +34,7 @@ def make_env(env_id, seed, rank, log_dir):
             env = wrap_deepmind(env)
         # If the input has shape (W,H,3), wrap for PyTorch convolutions
         obs_shape = env.observation_space.shape
-        if len(obs_shape) == 3 and obs_shape[2] in [1, 3]:
+        if pytorch and len(obs_shape) == 3 and obs_shape[2] in [1, 3]:
             env = WrapPyTorch(env)
         return env
 
@@ -40,8 +48,12 @@ class WrapPyTorch(gym.ObservationWrapper):
         self.observation_space = Box(
             self.observation_space.low[0,0,0],
             self.observation_space.high[0,0,0],
-            [obs_shape[2], obs_shape[1], obs_shape[0]]
+            [obs_shape[2], obs_shape[1], obs_shape[0]],
+            dtype=self.observation_space.dtype
         )
+
+    def observation(self, observation):
+        return self._observation(observation)
 
     def _observation(self, observation):
         return observation.transpose(2, 0, 1)
