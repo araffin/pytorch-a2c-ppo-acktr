@@ -45,13 +45,12 @@ def fix_point(x, y, interval):
 
     return fx, fy
 
-
-def load_data(indir, smooth, bin_size):
+def load_csv(log_folder):
     datas = []
-    infiles = glob.glob(os.path.join(indir, '*.monitor.csv'))
+    monitor_files = glob.glob(os.path.join(log_folder, '*.monitor.csv'))
 
-    for inf in infiles:
-        with open(inf, 'r') as f:
+    for input_file in monitor_files:
+        with open(input_file, 'r') as f:
             f.readline()
             f.readline()
             for line in f:
@@ -66,6 +65,11 @@ def load_data(indir, smooth, bin_size):
     for i in range(len(datas)):
         result.append([timesteps, datas[i][-1]])
         timesteps += datas[i][1]
+
+    return result, timesteps
+
+def load_data(log_folder, smooth, bin_size):
+    result, timesteps = load_csv(log_folder)
 
     if len(result) < bin_size:
         return [None, None]
@@ -82,23 +86,50 @@ def load_data(indir, smooth, bin_size):
     return [x, y]
 
 
-color_defaults = [
-    '#1f77b4',  # muted blue
-    '#ff7f0e',  # safety orange
-    '#2ca02c',  # cooked asparagus green
-    '#d62728',  # brick red
-    '#9467bd',  # muted purple
-    '#8c564b',  # chestnut brown
-    '#e377c2',  # raspberry yogurt pink
-    '#7f7f7f',  # middle gray
-    '#bcbd22',  # curry yellow-green
-    '#17becf'  # blue-teal
-]
+def moving_average(values, window):
+    """
+    :param values: (numpy array)
+    :param window: (int)
+    :return: (numpy array)
+    """
+    weights = np.repeat(1.0, window) / window
+    return np.convolve(values, weights, 'valid')
+
+
+def episode_plot(viz, win, folder, game, name, window=5, title=""):
+    """
+    Create/Update a vizdom plot of reward per episode
+    :param viz: (visdom object)
+    :param win: (str) Window name, it is the unique id of each plot
+    :param folder: (str) Log folder, where the monitor.csv is stored
+    :param game: (str) Name of the environment
+    :param name: (str) Algo name
+    :param window: (int) Smoothing window
+    :param title: (str) additional info to display in the plot title
+    :return: (str)
+    """
+    result, _ = load_csv(folder)
+    y = np.array(result)[:, 1]
+    x = np.arange(len(y))
+    
+    y = moving_average(y, window)
+    if len(y) == 0:
+        return win
+
+    # Truncate x
+    x = x[len(x) - len(y):]
+    opts = {
+        "title": "{}\n{}".format(game, title),
+        "xlabel": "Number of Episodes",
+        "ylabel": "Rewards",
+        "legend": [name]
+    }
+    return viz.line(y, x, win=win, opts=opts)
 
 
 def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1, title=""):
     """
-    Create/Update a vizdom plot
+    Create/Update a vizdom plot of reward per timesteps
     :param viz: (visdom object)
     :param win: (str) Window name, it is the unique id of each plot
     :param folder: (str) Log folder, where the monitor.csv is stored
@@ -107,6 +138,7 @@ def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1, title=""):
     :param bin_size: (int)
     :param smooth: (int) Smoothing method (0 for no smoothing)
     :param title: (str) additional info to display in the plot title
+    :return: (str)
     """
     tx, ty = load_data(folder, smooth, bin_size)
     if tx is None or ty is None:
