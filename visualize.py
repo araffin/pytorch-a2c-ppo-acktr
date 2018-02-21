@@ -109,10 +109,18 @@ def episode_plot(viz, win, folder, game, name, window=5, title=""):
     :return: (str)
     """
     result, _ = load_csv(folder)
+
+    if len(result) == 0:
+        return win
+
     y = np.array(result)[:, 1]
     x = np.arange(len(y))
-    
+
+    if y.shape[0] < window:
+        return win
+
     y = moving_average(y, window)
+
     if len(y) == 0:
         return win
 
