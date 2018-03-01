@@ -27,10 +27,10 @@ def get_args():
                         help='value loss coefficient (default: 0.5)')
     parser.add_argument('--max-grad-norm', type=float, default=0.5,
                         help='max norm of gradients (default: 0.5)')
-    parser.add_argument('--seed', type=int, default=1,
-                        help='random seed (default: 1)')
-    parser.add_argument('--num-processes', type=int, default=16,
-                        help='how many training CPU processes to use (default: 16)')
+    parser.add_argument('--seed', type=int, default=0,
+                        help='random seed (default: 0)')
+    parser.add_argument('--num-cpu', type=int, default=1,
+                        help='how many training CPU processes to use (default: 1)')
     parser.add_argument('--num-steps', type=int, default=5,
                         help='number of forward steps in A2C (default: 5)')
     parser.add_argument('--ppo-epoch', type=int, default=4,
