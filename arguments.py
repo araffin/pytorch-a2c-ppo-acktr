@@ -49,7 +49,7 @@ def get_args():
                         help='vis interval, one log per n updates (default: 100)')
     parser.add_argument('--num-frames', type=int, default=10e6,
                         help='number of frames to train (default: 10e6)')
-    parser.add_argument('--env-name', default='KukaButtonGymEnv-v0',
+    parser.add_argument('--env', default='KukaButtonGymEnv-v0',
                         help='environment to train on (default: KukaButtonGymEnv-v0)')
     parser.add_argument('--log-dir', default='/tmp/gym/',
                         help='directory to save agent logs and model (default: /tmp/gym)')
@@ -62,7 +62,7 @@ def get_args():
     parser.add_argument('--port', type=int, default=8097,
                         help='port to run the server on (default: 8097)')
     parser.add_argument('--shape-reward', action='store_true', default=False,
-                        help='Shape the reward (reward = - distance) instead of a sparse reward')                    
+                        help='Shape the reward (reward = - distance) instead of a sparse reward')
     args = parser.parse_args()
 
     args.cuda = not args.no_cuda and torch.cuda.is_available()
