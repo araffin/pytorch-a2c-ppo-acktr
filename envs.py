@@ -13,7 +13,7 @@ except ImportError:
     pass
 
 
-def make_env(env_id, seed, rank, log_dir, pytorch=True):
+def make_env(env_id, seed, rank, log_dir, pytorch=True, allow_early_resets=False):
     """
     Instantiate gym env
     :param env_id: (str)
@@ -21,6 +21,7 @@ def make_env(env_id, seed, rank, log_dir, pytorch=True):
     :param rank: (int)
     :param log_dir: (str)
     :param pytorch: (bool)
+    :param allow_early_resets: (bool) Allow reset before the enviroment is done
     """
     def _thunk():
         env = gym.make(env_id)
@@ -29,7 +30,7 @@ def make_env(env_id, seed, rank, log_dir, pytorch=True):
             env = make_atari(env_id)
         env.seed(seed + rank)
         if log_dir is not None:
-            env = bench.Monitor(env, os.path.join(log_dir, str(rank)))
+            env = bench.Monitor(env, os.path.join(log_dir, str(rank)), allow_early_resets=allow_early_resets)
         if is_atari:
             env = wrap_deepmind(env)
         # If the input has shape (W,H,3), wrap for PyTorch convolutions
